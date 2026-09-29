@@ -3,7 +3,7 @@ This is a collection of maps that highlight placess ive been to and randomly Mor
 
 ## Web Map Gallery
 
-Gallery Link: [insert your github pages link]
+Gallery Link: https://sophiac1297-oss.github.io/lab05/
 
 ---
 
