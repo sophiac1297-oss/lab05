@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>The City of Brotherly Love</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@^6.10.0/dist/maplibre-gl.css" />
+    <style>
+        body { margin: 0; }
+        #map { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+        header {
+            position: absolute;
+            top: 10px;
+            left: 60px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Philadelphia, PA</h1>
+        <p>"philia" (love) and "adelphos" (brother).</p>
+    </header>   
+    <div id="map"></div>
+    <script type="module">
+        import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.10.0/dist/maplibre-gl.mjs';
+const map = new maplibregl.Map({
+    style: `https://tiles.openfreemap.org/styles/bright`,
+    center: [-75.16393341622414, 39.952270651890615],
+    zoom: 15,
+    pitch: 45,
+    bearing: -60,
+    container: 'map',
+    canvasContextAttributes: {antialias: true}
+});
+
+// The 'building' layer in the streets vector source contains building-height
+// data from OpenStreetMap.
+map.on('load', () => {
+    // Insert the layer beneath any symbol layer.
+    const layers = map.getStyle().layers;
+
+    let labelLayerId;
+    for (let i = 0; i < layers.length; i++) {
+        if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
+            labelLayerId = layers[i].id;
+            break;
+        }
+    }
+
+    map.addSource('openfreemap', {
+        url: `https://tiles.openfreemap.org/planet`,
+        type: 'vector',
+    });
+
+    map.addLayer(
+        {
+            'id': '3d-buildings',
+            'source': 'openfreemap',
+            'source-layer': 'building',
+            'type': 'fill-extrusion',
+            'minzoom': 14,
+            'filter': ['!=', ['get', 'hide_3d'], true],
+            'paint': {
+                'fill-extrusion-color': [
+                    'interpolate',
+                    ['linear'],
+                    ['get', 'render_height'], 2, 'darkgreen', 16, 'lightgreen', 50, 'silver'
+                ],
+                'fill-extrusion-height': [
+                    'interpolate',
+                    ['linear'],
+                    ['zoom'],
+                    14,
+                    0,
+                    16,
+                    ['get', 'render_height']
+                ],
+                'fill-extrusion-base': ['case',
+                    ['>=', ['get', 'zoom'], 14],
+                    ['get', 'render_min_height'], 0
+                ]
+            }
+        },
+        labelLayerId
+    );
+});
+map.on('load', function () {
+    map.addControl(new maplibregl.NavigationControl(), 'top-left');
+    map.addControl(new maplibregl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true
+    }));
+    map.addControl(new maplibregl.NavigationControl({
+        visualizePitch: true,
+        showZoom: true,
+        showCompass: true
+    }), 'top-left');
+    map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+    map.addControl(new maplibregl.ScaleControl(), 'bottom-left');  
+});
+    </script>
+</body>
+</html>

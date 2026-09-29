@@ -1,5 +1,5 @@
 # GISS 366 Lab 05
-[update your description here] 
+This is a collection of maps that highlight placess ive been to and randomly Mora, NM because thats where the data was at
 
 ## Web Map Gallery
 

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Where Ive Lived</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@^6.10.0/dist/maplibre-gl.css" />
+    <style>
+        body { margin: 0; }
+        #map { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script type="module">
+        import * as maplibregl from 'https://unpkg.com/maplibre-gl@^6.10.0/dist/maplibre-gl.mjs';
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://tiles.openfreemap.org/styles/positron',
+            center: [-74.97664439738958, 40.35225450527222],   // [lng, lat]
+            zoom: 6
+        });
+        window.map = map;
+
+    map.on('load', () => {
+    map.addSource('places', {
+        type: 'geojson',
+        data: {
+            type: 'FeatureCollection',
+            features: [
+                {
+                    type: 'Feature',
+                    properties: {
+                        name: 'Turnersville, NJ',
+                        rating: 1,
+                        year: 2018,
+                        roomates: 4
+                    },
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-75.05471328454618, 39.77216941944745]
+                    }
+                },
+                {
+                    type: 'Feature',
+                    properties: {
+                        name: 'Doylestown, PA',
+                        rating: 2,
+                        year: 2022,
+                        roomates: 4
+                    },
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-75.1298740440206, 40.310472199985746]
+                    }
+                },
+                {
+                    type: 'Feature',
+                    properties: {
+                        name: 'Little Ferry, NJ',
+                        rating: 3,
+                        year: 2023,
+                        roomates: 4
+                    },
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-74.03370676314903, 40.8523717892172]
+                    }
+                },
+                {
+                    type: 'Feature',
+                    properties: {
+                        name: 'Milford, PA',
+                        rating: 4,
+                        year: 2024,
+                        roomates: 4
+                    },
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-74.79613834504867, 41.31015012691666]
+                    }
+                }
+            ]
+        }
+    });
+
+    // Add a layer showing the points
+    map.addLayer({
+        id: 'places',
+        type: 'circle',
+        source: 'places',
+        paint: {
+            'circle-radius': 8,
+            'circle-color': 'blue',
+            'circle-stroke-color': 'blue',
+            'circle-stroke-width': 2
+        }
+    });
+
+    // When a point is clicked, open a popup
+    map.on('click', 'places', (e) => {
+
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const name = e.features[0].properties.name;
+
+        // Keep popup attached to the correct copy of the point
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        new maplibregl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(`<strong>${name}, ${e.features[0].properties.year}</strong>, Roommates: ${e.features[0].properties.roomates}`) // This is where the pop-up content is identified.
+            .addTo(map);
+    });
+
+    // Change cursor to pointer when hovering over a point
+    map.on('mouseenter', 'places', () => {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change cursor back when leaving a point
+    map.on('mouseleave', 'places', () => {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+});
+    </script>
+</body>
+</html>
